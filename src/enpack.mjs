@@ -2,41 +2,35 @@ import { Buffer } from 'node:buffer';
 
 import convertToBuf from './convertToBuf.mjs';
 
+const MAX_BIT_SIZE = 4;
+const MAX_CHUNK_SIZE = 2147483647;
+const BIT_SIZE_LIMITS = {
+  1: 255,
+  2: 65535,
+  4: MAX_CHUNK_SIZE,
+};
+
 export default (b, bitSize = 2) => {
-  if (bitSize > 4) {
-    throw new Error(`\`${bitSize}\` exceed max size 4`);
+  if (bitSize > MAX_BIT_SIZE || !BIT_SIZE_LIMITS[bitSize]) {
+    throw new Error(`\`${bitSize}\` is invalid or exceeds max size ${MAX_BIT_SIZE}`);
   }
   const chunk = convertToBuf(b);
   const chunkLength = chunk.length;
-  if (chunkLength > 2147483647) {
-    throw new Error('content size exceed 2147483647');
+  if (chunkLength > BIT_SIZE_LIMITS[bitSize]) {
+    throw new Error(`content size exceeds ${BIT_SIZE_LIMITS[bitSize]}`);
   }
   const sizeBuf = Buffer.allocUnsafe(bitSize);
-  switch (bitSize) {
-  case 1: {
-    if (chunkLength > 255) {
-      throw new Error('content size exceed 255');
-    }
-    sizeBuf.writeUInt8(chunkLength);
-    break;
+  const writeMethod = {
+    1: 'writeUInt8',
+    2: 'writeUInt16BE',
+    4: 'writeUInt32BE',
+  }[bitSize];
+
+  if (!writeMethod) {
+    throw new Error(`\`${bitSize}\` unable to handle`);
   }
-  case 2: {
-    if (chunkLength > 65535) {
-      throw new Error('content size exceed 65535');
-    }
-    sizeBuf.writeUInt16BE(chunkLength);
-    break;
-  }
-  case 4: {
-    sizeBuf.writeUInt32BE(chunkLength);
-    break;
-  }
-  default: {
-    throw new Error(`\`${bitSize}\` unable handle`);
-  }
-  }
-  return Buffer.concat([
-    sizeBuf,
-    chunk,
-  ], bitSize + chunkLength);
+
+  sizeBuf[writeMethod](chunkLength);
+
+  return Buffer.concat([sizeBuf, chunk], bitSize + chunkLength);
 };
