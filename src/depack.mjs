@@ -30,21 +30,21 @@ export default (bitSize = 2) => {
         return null;
       }
       switch (bitSize) {
-        case 1: {
-          state.chunkSize = state.buf.readUint8(0);
-          break;
-        }
-        case 2: {
-          state.chunkSize = state.buf.readUint16BE(0);
-          break;
-        }
-        case 4: {
-          state.chunkSize = state.buf.readUint32BE(0);
-          break;
-        }
-        default: {
-          throw new Error(`\`${bitSize}\` unable handle`);
-        }
+      case 1: {
+        state.chunkSize = state.buf.readUint8(0);
+        break;
+      }
+      case 2: {
+        state.chunkSize = state.buf.readUint16BE(0);
+        break;
+      }
+      case 4: {
+        state.chunkSize = state.buf.readUint32BE(0);
+        break;
+      }
+      default: {
+        throw new Error(`\`${bitSize}\` unable handle`);
+      }
       }
     }
     if (state.size - bitSize < state.chunkSize) {
