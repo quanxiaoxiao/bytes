@@ -1,17 +1,12 @@
 import assert from 'node:assert';
 
 export default (max = 2147483647) => {
-  assert(typeof max === 'number' && max > 1);
-  const state = {
-    current: 1,
-  };
+  assert(typeof max === 'number' && Number.isInteger(max) && max > 1, 'max must be an integer greater than 1');
+
+  let current = 0;
 
   return () => {
-    const _id = state.current;
-    state.current += 1;
-    if (state.current > max) {
-      state.current = 1;
-    }
-    return _id;
+    current = (current % max) + 1;
+    return current;
   };
 };
