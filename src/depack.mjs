@@ -48,9 +48,9 @@ export default (bitSize = 2) => {
       return null;
     }
     return {
+      payload: state.buf.subarray(bitSize, state.chunkSize + bitSize),
       size: state.chunkSize,
-      payload: state.buf.slice(bitSize, state.chunkSize + bitSize),
-      buf: state.buf.slice(state.chunkSize + bitSize),
+      buf: state.buf.subarray(state.chunkSize + bitSize),
     };
   };
 };
