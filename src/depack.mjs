@@ -29,7 +29,7 @@ export default (bitSize = 2) => {
     throw new Error(`Unsupported bitSize: ${bitSize}`);
   }
 
-  return (chunk) => {
+  const processChunk = (chunk) => {
     if (state.chunkSize !== -1 && state.size - bitSize >= state.chunkSize) {
       throw new Error('already depack complete');
     }
@@ -52,4 +52,6 @@ export default (bitSize = 2) => {
       buf: state.buf.subarray(state.chunkSize + bitSize),
     };
   };
+
+  return processChunk;
 };
