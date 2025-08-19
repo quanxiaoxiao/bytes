@@ -20,8 +20,8 @@ export default (procedures) => {
     }
 
     if (chunk.length > 0) {
-      state.size += chunk.length;
-      state.buf = Buffer.concat([state.buf, chunk], state.size);
+      state.buf = Buffer.concat([state.buf, chunk]);
+      state.size = state.buf.length;
     }
 
     while (state.size > 0
