@@ -12,10 +12,6 @@ export default (bitSize = 2) => {
     chunkSize: -1,
     buf: Buffer.from([]),
   };
-  const appendChunk = (chunk) => {
-    state.size += chunk.length;
-    state.buf = Buffer.concat([state.buf, chunk], state.size);
-  };
 
   const lengthReaders = {
     1: (buf) => buf.readUInt8(0),
@@ -29,20 +25,26 @@ export default (bitSize = 2) => {
     throw new Error(`Unsupported bitSize: ${bitSize}`);
   }
 
+  const isComplete = () => {
+    return state.chunkSize !== -1 && state.size - bitSize >= state.chunkSize;
+  };
+
   const processChunk = (chunk) => {
-    if (state.chunkSize !== -1 && state.size - bitSize >= state.chunkSize) {
+    if (isComplete()) {
       throw new Error('already depack complete');
     }
     if (chunk.length > 0) {
-      appendChunk(chunk);
+      state.size += chunk.length;
+      state.buf = Buffer.concat([state.buf, chunk], state.size);
     }
 
-    if (state.chunkSize === -1 && state.size < bitSize) {
-      return null;
-    }
-    if (state.chunkSize === -1 && state.size >= bitSize) {
+    if (state.chunkSize === -1) {
+      if (state.size < bitSize) {
+        return null;
+      }
       state.chunkSize = readLength(state.buf);
     }
+
     if (state.size - bitSize < state.chunkSize) {
       return null;
     }
