@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { Buffer } from 'node:buffer';
 
 export default (procedures) => {
-  assert(Array.isArray(procedures) && procedures.length > 0);
+  assert(Array.isArray(procedures) && procedures.length > 0, 'procedures must be a non-empty array');
 
   const state = {
     index: 0,
@@ -12,7 +12,7 @@ export default (procedures) => {
     payload: {},
   };
 
-  return (chunk) => {
+  const parseChunk = (chunk) => {
     assert(Buffer.isBuffer(chunk));
     if (state.index === procedures.length) {
       throw new Error('parse already complete');
@@ -78,4 +78,5 @@ export default (procedures) => {
       buf: state.buf.subarray(state.offset),
     };
   };
+  return parseChunk;
 };
