@@ -16,7 +16,7 @@ export default (procedures) => {
     assert(Buffer.isBuffer(chunk), 'chunk must be a Buffer');
 
     if (state.index >= procedures.length) {
-      throw new Error('parse already complete');
+      throw new Error('Parser already completed - cannot process more data');
     }
 
     if (chunk.length > 0) {
