@@ -17,18 +17,17 @@ export default (bitSize = 2) => {
     state.buf = Buffer.concat([state.buf, chunk], state.size);
   };
 
-  const readChunkSize = () => {
-    switch (bitSize) {
-    case 1:
-      return state.buf.readUint8(0);
-    case 2:
-      return state.buf.readUint16BE(0);
-    case 4:
-      return state.buf.readUint32BE(0);
-    default:
-      throw new Error(`Unsupported bitSize: ${bitSize}`);
-    }
+  const lengthReaders = {
+    1: (buf) => buf.readUInt8(0),
+    2: (buf) => buf.readUInt16BE(0),
+    4: (buf) => buf.readUInt32BE(0),
   };
+
+  const readLength = lengthReaders[bitSize];
+
+  if (readLength == null) {
+    throw new Error(`Unsupported bitSize: ${bitSize}`);
+  }
 
   return (chunk) => {
     if (state.chunkSize !== -1 && state.size - bitSize >= state.chunkSize) {
@@ -42,7 +41,7 @@ export default (bitSize = 2) => {
       return null;
     }
     if (state.chunkSize === -1 && state.size >= bitSize) {
-      state.chunkSize = readChunkSize();
+      state.chunkSize = readLength(state.buf);
     }
     if (state.size - bitSize < state.chunkSize) {
       return null;
