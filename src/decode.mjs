@@ -13,8 +13,9 @@ export default (procedures) => {
   };
 
   const parseChunk = (chunk) => {
-    assert(Buffer.isBuffer(chunk));
-    if (state.index === procedures.length) {
+    assert(Buffer.isBuffer(chunk), 'chunk must be a Buffer');
+
+    if (state.index >= procedures.length) {
       throw new Error('parse already complete');
     }
 
